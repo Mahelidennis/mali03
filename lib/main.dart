@@ -23,21 +23,21 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: const Color(0xFF2D3250), // Lighter navy background
+        scaffoldBackgroundColor: const Color(0xFF4A5568), // Much lighter navy background
         brightness: Brightness.light,
-        cardColor: const Color(0xFF424769), // Lighter card background
+        cardColor: const Color(0xFF5A6C7D), // Lighter card background
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF7077A1),
+          backgroundColor: Color(0xFF8B9DC3),
           foregroundColor: Colors.white,
         ),
       ),
       darkTheme: ThemeData(
         primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: const Color(0xFF1A1A2E), // Lighter dark mode background
+        scaffoldBackgroundColor: const Color(0xFF2D3250), // Lighter dark mode background
         brightness: Brightness.dark,
-        cardColor: const Color(0xFF2D3250), // Lighter dark card background
+        cardColor: const Color(0xFF4A5568), // Lighter dark card background
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF424769),
+          backgroundColor: Color(0xFF5A6C7D),
           foregroundColor: Colors.white,
         ),
         textTheme: const TextTheme(

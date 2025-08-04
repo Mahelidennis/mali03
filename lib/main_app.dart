@@ -46,7 +46,7 @@ class _MainAppState extends State<MainApp> {
             });
           },
           type: BottomNavigationBarType.fixed,
-          backgroundColor: const Color(0xFF424769), // Lighter background
+          backgroundColor: const Color(0xFF5A6C7D), // Much lighter background
           selectedItemColor: Colors.blue[300], // Brighter blue for contrast
           unselectedItemColor: Colors.grey[400], // Lighter grey for visibility
           selectedLabelStyle: TextStyle(
