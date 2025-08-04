@@ -46,9 +46,9 @@ class _MainAppState extends State<MainApp> {
             });
           },
           type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.grey,
+          backgroundColor: const Color(0xFF16213E), // Dark background
+          selectedItemColor: Colors.blue[300], // Brighter blue for contrast
+          unselectedItemColor: Colors.grey[400], // Lighter grey for visibility
           selectedLabelStyle: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: isSmallScreen ? 10 : 12,
