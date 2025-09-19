@@ -1,29 +1,8 @@
-import java.util.Properties
-
-plugins {
-    id("com.android.application")
-    // START: FlutterFire Configuration
-    id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
-    id("kotlin-android")
-    id("dev.flutter.flutter-gradle-plugin")
-}
-
-val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.inputStream().use { localProperties.load(it) }
-}
-
-val flutterRoot: String = localProperties.getProperty("flutter.sdk")
-    ?: error("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
-
-val flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "1"
-val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
-
 android {
     namespace = "com.example.mali03"  // <-- Your Android package name
     compileSdk = flutter.compileSdkVersion
+
+    ndkVersion = "27.0.12077973"   // 👈 Add this line
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -51,12 +30,4 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
-}
-
-flutter {
-    source = "../.."
-}
-
-dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.0")
 }
