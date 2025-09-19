@@ -1,6 +1,6 @@
 workflows:
   android-workflow:
-    name: Android Build
+    name: Mali Android Build
     max_build_duration: 60
     environment:
       flutter: stable
@@ -10,6 +10,6 @@ workflows:
       - name: Get Flutter packages
         script: flutter pub get
       - name: Build APK (release)
-        script: flutter build apk --release
+        script: flutter build apk --release --no-tree-shake-icons
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
