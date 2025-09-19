@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'user_onboarding_screen.dart';
-import 'reports_screen.dart';
-import 'notification_settings_screen.dart';
-import 'backup_restore_screen.dart';
+import 'financial_reports_screen.dart';
+import 'notification_center_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -233,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const NotificationSettingsScreen()),
+              MaterialPageRoute(builder: (context) => const NotificationCenterScreen()),
             );
           },
         ),
@@ -274,7 +272,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ReportsScreen()),
+              MaterialPageRoute(builder: (context) => const FinancialReportsScreen()),
             );
           },
         ),
@@ -309,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const BackupRestoreScreen()),
+              MaterialPageRoute(builder: (context) => const NotificationCenterScreen()),
             );
           },
         ),

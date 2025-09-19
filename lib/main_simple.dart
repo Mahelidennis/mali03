@@ -1,24 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'main_app.dart';
 import 'welcome_screen.dart';
 import 'set_vibe_screen.dart';
 import 'user_profile_setup_screen.dart';
 import 'permissions_privacy_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // Ensure we have a Firebase user (anonymous is fine for backups)
-  try {
-    await FirebaseAuth.instance.signInAnonymously();
-  } catch (_) {}
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -30,7 +21,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.pink,
-        scaffoldBackgroundColor: const Color(0xFFFDF2F8), // Light pink background
+        scaffoldBackgroundColor: const Color(0xFFFDF2F8),
         brightness: Brightness.light,
         cardColor: Colors.white,
         appBarTheme: const AppBarTheme(
@@ -40,8 +31,8 @@ class MyApp extends StatelessWidget {
           centerTitle: true,
         ),
         colorScheme: const ColorScheme.light(
-          primary: Color(0xFFEE2B8D), // Hot pink
-          secondary: Color(0xFFFDF2F8), // Light pink
+          primary: Color(0xFFEE2B8D),
+          secondary: Color(0xFFFDF2F8),
           surface: Colors.white,
           background: Color(0xFFFDF2F8),
           onPrimary: Colors.white,
@@ -81,51 +72,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      darkTheme: ThemeData(
-        primarySwatch: Colors.pink,
-        scaffoldBackgroundColor: const Color(0xFF0A0A0A),
-        brightness: Brightness.dark,
-        cardColor: const Color(0xFF1A1A1A),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF0A0A0A),
-          foregroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-        ),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFEE2B8D),
-          secondary: Color(0xFF2A1A1F),
-          surface: Color(0xFF1A1A1A),
-          background: Color(0xFF0A0A0A),
-          onPrimary: Colors.white,
-          onSecondary: Colors.white,
-          onSurface: Colors.white,
-          onBackground: Colors.white,
-        ),
-        textTheme: const TextTheme(
-          headlineLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          headlineMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          bodyLarge: TextStyle(color: Colors.white),
-          bodyMedium: TextStyle(color: Color(0xFF9CA3AF)),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFEE2B8D),
-            foregroundColor: Colors.white,
-            elevation: 8,
-            shadowColor: const Color(0xFFEE2B8D).withOpacity(0.3),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          ),
-        ),
-      ),
-      themeMode: ThemeMode.system,
       home: const AppStartScreen(),
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-          child: child!,
-        );
-      },
     );
   }
 }
@@ -143,7 +90,6 @@ class _AppStartScreenState extends State<AppStartScreen> {
   bool _hasCompletedProfileSetup = false;
   bool _hasCompletedPermissions = false;
   bool _isLoading = true;
-  bool _hasError = false;
 
   @override
   void initState() {
@@ -153,17 +99,11 @@ class _AppStartScreenState extends State<AppStartScreen> {
 
   Future<void> _checkOnboardingStatus() async {
     try {
-      debugPrint('Checking onboarding status...');
       final prefs = await SharedPreferences.getInstance();
       final welcomeCompleted = prefs.getBool('welcome_complete') ?? false;
       final vibeCompleted = prefs.getBool('vibe_setup_complete') ?? false;
       final profileCompleted = prefs.getBool('profile_setup_complete') ?? false;
       final permissionsCompleted = prefs.getBool('permissions_privacy_complete') ?? false;
-      
-      debugPrint('Welcome complete: $welcomeCompleted');
-      debugPrint('Vibe setup complete: $vibeCompleted');
-      debugPrint('Profile setup complete: $profileCompleted');
-      debugPrint('Permissions complete: $permissionsCompleted');
       
       if (mounted) {
         setState(() {
@@ -173,13 +113,10 @@ class _AppStartScreenState extends State<AppStartScreen> {
           _hasCompletedPermissions = permissionsCompleted;
           _isLoading = false;
         });
-        debugPrint('Loading state set to false');
       }
     } catch (e) {
-      debugPrint('Error checking onboarding status: $e');
       if (mounted) {
         setState(() {
-          _hasError = true;
           _isLoading = false;
         });
       }
@@ -188,42 +125,7 @@ class _AppStartScreenState extends State<AppStartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('Building AppStartScreen - Loading: $_isLoading, Welcome: $_hasCompletedWelcome, VibeSetup: $_hasCompletedVibeSetup, ProfileSetup: $_hasCompletedProfileSetup, Permissions: $_hasCompletedPermissions, Error: $_hasError');
-    
-    if (_hasError) {
-      debugPrint('Showing error screen');
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              const Text(
-                'Something went wrong',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const Text('Please refresh the page'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _isLoading = true;
-                    _hasError = false;
-                  });
-                  _checkOnboardingStatus();
-                },
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    
     if (_isLoading) {
-      debugPrint('Showing loading screen');
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
@@ -232,26 +134,21 @@ class _AppStartScreenState extends State<AppStartScreen> {
     }
 
     if (!_hasCompletedWelcome) {
-      debugPrint('Showing welcome screen');
       return const WelcomeScreen();
     }
 
     if (!_hasCompletedVibeSetup) {
-      debugPrint('Showing vibe setup screen');
       return const SetVibeScreen();
     }
 
     if (!_hasCompletedProfileSetup) {
-      debugPrint('Showing profile setup screen');
       return const UserProfileSetupScreen();
     }
 
     if (!_hasCompletedPermissions) {
-      debugPrint('Showing permissions screen');
       return const PermissionsPrivacyScreen();
     }
 
-    debugPrint('Showing main app');
     return const MainApp();
   }
 }

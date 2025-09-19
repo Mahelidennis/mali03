@@ -2,6 +2,9 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
+    // START: FlutterFire Configuration
+    id("com.google.gms.google-services")
+    // END: FlutterFire Configuration
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -19,7 +22,7 @@ val flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "
 val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
-    namespace = "com.example.mali03"
+    namespace = "com.example.mali03"  // <-- Your Android package name
     compileSdk = flutter.compileSdkVersion
 
     compileOptions {
@@ -36,7 +39,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.mali03"
+        applicationId = "com.example.mali03"  // <-- This is the one you'll use in Firebase
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInt()

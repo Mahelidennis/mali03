@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'chat_screen.dart';
-import 'goals_screen.dart';
+import 'mali_chat_screen.dart';
 import 'profile_screen.dart';
 import 'home_screen.dart';
-import 'spending_tracker_screen.dart';
+import 'expenses_screen.dart';
+import 'goals_tracking_screen.dart';
+import 'financial_reports_screen.dart';
+import 'income_management_screen.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -17,22 +19,22 @@ class _MainAppState extends State<MainApp> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const ChatScreen(),
-    const ProfileScreen(),
+    const ExpensesScreen(),
+    const IncomeManagementScreen(),
+    const GoalsTrackingScreen(),
+    const FinancialReportsScreen(),
+    const MaliChatScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final isSmallScreen = screenSize.width < 360;
-    
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -46,28 +48,41 @@ class _MainAppState extends State<MainApp> {
             });
           },
           type: BottomNavigationBarType.fixed,
-          backgroundColor: const Color(0xFF5A6C7D), // Much lighter background
-          selectedItemColor: Colors.blue[300], // Brighter blue for contrast
-          unselectedItemColor: Colors.grey[400], // Lighter grey for visibility
-          selectedLabelStyle: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: isSmallScreen ? 10 : 12,
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFFEE2B8D),
+          unselectedItemColor: Colors.grey[600],
+          selectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
           ),
-          unselectedLabelStyle: TextStyle(
-            fontSize: isSmallScreen ? 10 : 12,
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 12,
           ),
-          items: [
+          elevation: 0,
+          items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home, size: isSmallScreen ? 20 : 24),
+              icon: Icon(Icons.home, size: 24),
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble, size: isSmallScreen ? 20 : 24),
-              label: 'Chat with Mali',
+              icon: Icon(Icons.receipt_long, size: 24),
+              label: 'Expenses',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person, size: isSmallScreen ? 20 : 24),
-              label: 'Profile',
+              icon: Icon(Icons.account_balance_wallet, size: 24),
+              label: 'Income',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.emoji_events, size: 24),
+              label: 'Goals',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart, size: 24),
+              label: 'Reports',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.chat, size: 24),
+              label: 'Mali Chat',
             ),
           ],
         ),

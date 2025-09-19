@@ -1,0 +1,7 @@
+[33ma557251[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Make background even lighter for better pie chart visibility
+[33m0cfa474[m Update theme with lighter navy background for better visibility
+[33m2d75606[m Update app theme with dark background for better pie chart visibility
+[33m0c72c25[m Add simple Mali landing page
+[33m984bc36[m Deploy Mali to GitHub Pages - Static files ready
+[33m8d91700[m Add GitHub Pages deployment workflow
+[33ma85ec73[m Initial commit: Mali Financial Assistant with deployment setup
