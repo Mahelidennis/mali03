@@ -5,7 +5,7 @@ workflows:
     environment:
       flutter: stable
       vars:
-        ANDROID_NDK_VERSION: "27.0.12077973"
+        ANDROID_NDK_VERSION: "25.1.8937393"
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
