@@ -1,3 +1,20 @@
-# Ignore everything except the build/web directory
-*
-!build/web/**
+# Ignore Flutter source files but keep web build files
+lib/
+android/
+ios/
+linux/
+macos/
+windows/
+test/
+.git/
+.gitignore
+analysis_options.yaml
+pubspec.yaml
+pubspec.lock
+README.md
+*.md
+scripts/
+docs/
+public/
+static/
+build/
