@@ -1,0 +1,1 @@
+C:\Users\user\AndroidStudioProjects\mali03\android\app\src\main\kotlin\com\example\mali03\MainActivity.kt

@@ -1,0 +1,23 @@
+{
+  "name": "mali03",
+  "version": "1.0.0",
+  "description": "Mali - Your Personal Financial AI Assistant",
+  "main": "build/web/index.html",
+  "scripts": {
+    "build": "flutter build web --release",
+    "start": "flutter run -d chrome --web-port=3000"
+  },
+  "keywords": [
+    "flutter",
+    "financial",
+    "ai",
+    "assistant",
+    "budget",
+    "expense-tracker"
+  ],
+  "author": "Mali Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

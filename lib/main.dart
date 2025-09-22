@@ -1,21 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'main_app.dart';
-import 'welcome_screen.dart';
-import 'set_vibe_screen.dart';
-import 'user_profile_setup_screen.dart';
-import 'permissions_privacy_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // Ensure we have a Firebase user (anonymous is fine for backups)
-  try {
-    await FirebaseAuth.instance.signInAnonymously();
-  } catch (_) {}
   runApp(const MyApp());
 }
 
@@ -119,7 +109,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.system,
-      home: const AppStartScreen(),
+      home: const MainApp(),
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
@@ -130,128 +120,3 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AppStartScreen extends StatefulWidget {
-  const AppStartScreen({super.key});
-
-  @override
-  State<AppStartScreen> createState() => _AppStartScreenState();
-}
-
-class _AppStartScreenState extends State<AppStartScreen> {
-  bool _hasCompletedWelcome = false;
-  bool _hasCompletedVibeSetup = false;
-  bool _hasCompletedProfileSetup = false;
-  bool _hasCompletedPermissions = false;
-  bool _isLoading = true;
-  bool _hasError = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkOnboardingStatus();
-  }
-
-  Future<void> _checkOnboardingStatus() async {
-    try {
-      debugPrint('Checking onboarding status...');
-      final prefs = await SharedPreferences.getInstance();
-      final welcomeCompleted = prefs.getBool('welcome_complete') ?? false;
-      final vibeCompleted = prefs.getBool('vibe_setup_complete') ?? false;
-      final profileCompleted = prefs.getBool('profile_setup_complete') ?? false;
-      final permissionsCompleted = prefs.getBool('permissions_privacy_complete') ?? false;
-      
-      debugPrint('Welcome complete: $welcomeCompleted');
-      debugPrint('Vibe setup complete: $vibeCompleted');
-      debugPrint('Profile setup complete: $profileCompleted');
-      debugPrint('Permissions complete: $permissionsCompleted');
-      
-      if (mounted) {
-        setState(() {
-          _hasCompletedWelcome = welcomeCompleted;
-          _hasCompletedVibeSetup = vibeCompleted;
-          _hasCompletedProfileSetup = profileCompleted;
-          _hasCompletedPermissions = permissionsCompleted;
-          _isLoading = false;
-        });
-        debugPrint('Loading state set to false');
-      }
-    } catch (e) {
-      debugPrint('Error checking onboarding status: $e');
-      if (mounted) {
-        setState(() {
-          _hasError = true;
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    debugPrint('Building AppStartScreen - Loading: $_isLoading, Welcome: $_hasCompletedWelcome, VibeSetup: $_hasCompletedVibeSetup, ProfileSetup: $_hasCompletedProfileSetup, Permissions: $_hasCompletedPermissions, Error: $_hasError');
-    
-    if (_hasError) {
-      debugPrint('Showing error screen');
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              const Text(
-                'Something went wrong',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const Text('Please refresh the page'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _isLoading = true;
-                    _hasError = false;
-                  });
-                  _checkOnboardingStatus();
-                },
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    
-    if (_isLoading) {
-      debugPrint('Showing loading screen');
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (!_hasCompletedWelcome) {
-      debugPrint('Showing welcome screen');
-      return const WelcomeScreen();
-    }
-
-    if (!_hasCompletedVibeSetup) {
-      debugPrint('Showing vibe setup screen');
-      return const SetVibeScreen();
-    }
-
-    if (!_hasCompletedProfileSetup) {
-      debugPrint('Showing profile setup screen');
-      return const UserProfileSetupScreen();
-    }
-
-    if (!_hasCompletedPermissions) {
-      debugPrint('Showing permissions screen');
-      return const PermissionsPrivacyScreen();
-    }
-
-    debugPrint('Showing main app');
-    return const MainApp();
-  }
-}

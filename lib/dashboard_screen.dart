@@ -9,6 +9,7 @@ import 'goal_management_screen.dart';
 import 'mali_chat_enhanced.dart';
 import 'notification_service.dart';
 import 'notification_center_screen.dart';
+import 'widgets/guest_mode_banner.dart';
 import 'dart:convert';
 
 class DashboardScreen extends StatefulWidget {
@@ -149,6 +150,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
+          // Guest mode banner
+          const GuestModeBanner(),
           // Custom header
           Container(
             padding: const EdgeInsets.only(top: 50, left: 24, right: 24, bottom: 16),

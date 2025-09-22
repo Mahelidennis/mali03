@@ -1,0 +1,10 @@
+com.example.mali03:style/NormalTheme = 0x7f040001
+com.example.mali03:string/project_id = 0x7f030005
+com.example.mali03:string/google_storage_bucket = 0x7f030004
+com.example.mali03:style/LaunchTheme = 0x7f040000
+com.example.mali03:string/google_api_key = 0x7f030001
+com.example.mali03:string/google_app_id = 0x7f030002
+com.example.mali03:string/gcm_defaultSenderId = 0x7f030000
+com.example.mali03:mipmap/ic_launcher = 0x7f020000
+com.example.mali03:string/google_crash_reporting_api_key = 0x7f030003
+com.example.mali03:drawable/launch_background = 0x7f010000

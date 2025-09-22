@@ -1,150 +1,115 @@
-# Mali - Your Financial Big Sister 💅✨
+# Mali - Your Personal Financial AI Assistant 💰
 
-Mali is your AI-powered financial assistant with a strong feminist voice, big sister vibes, and lots of sassy quotes. She roasts you when you spend too much, provides deep insights about your money, and suggests personalized financial products to boost your savings.
+A beautiful Flutter web application that helps you manage your finances with the help of an AI assistant named Mali.
 
-## 🌟 Features
+## Features
 
-- **AI Financial Assistant** - Get sassy, personalized financial advice
-- **Expense Tracking** - Track your spending with smart categorization
-- **Budget Management** - Set and monitor budgets with alerts
-- **Goal Setting** - Save towards your financial goals
-- **Financial Reports** - Detailed insights and analytics
-- **Backup & Restore** - Secure data backup and synchronization
-- **Multi-language Support** - English, Kiswahili, Sheng
-- **Local Kenyan Wisdom** - Culturally relevant financial advice
+- 🤖 **AI-Powered Chat**: Get personalized financial advice from Mali
+- 💳 **Expense Tracking**: Track your daily expenses with categories
+- 💰 **Income Management**: Monitor your income sources
+- 🎯 **Goal Setting**: Set and track financial goals
+- 📊 **Financial Reports**: Visualize your financial data
+- 🔐 **User Authentication**: Secure login with Firebase
+- 📱 **Responsive Design**: Works on desktop and mobile
 
-## 🚀 Quick Start
+## Tech Stack
+
+- **Frontend**: Flutter Web
+- **Backend**: Firebase (Authentication, Firestore, Storage)
+- **Deployment**: Vercel
+- **State Management**: Flutter StatefulWidget
+
+## Getting Started
 
 ### Prerequisites
-- Flutter SDK (3.8.1 or higher)
-- Dart SDK
-- Android Studio / VS Code
-- Firebase account (for cloud features)
+
+- Flutter SDK (3.0+)
+- Firebase project
+- Node.js (for deployment)
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/mali03.git
-   cd mali03
-   ```
-
-2. **Install dependencies**
+1. Clone the repository
+2. Install Flutter dependencies:
    ```bash
    flutter pub get
    ```
 
-3. **Configure Firebase** (Optional)
-   - Create a Firebase project
-   - Add `google-services.json` to `android/app/`
-   - Add `GoogleService-Info.plist` to `ios/Runner/`
+3. Configure Firebase:
+   - Add your Firebase configuration to `lib/firebase_options.dart`
+   - Enable Authentication, Firestore, and Storage in Firebase Console
 
-4. **Run the app**
+4. Run the app:
    ```bash
-   flutter run
+   flutter run -d chrome
    ```
 
-## 📱 Deployment
+### Deployment
 
-### Web Deployment (Firebase Hosting)
+This app is configured for deployment on Vercel:
 
-1. **Build for web**
+1. Build the web app:
    ```bash
-   flutter build web
+   flutter build web --release
    ```
 
-2. **Deploy to Firebase**
-   ```bash
-   firebase deploy --only hosting
-   ```
+2. Deploy to Vercel:
+   - Connect your GitHub repository to Vercel
+   - Vercel will automatically detect the Flutter app and deploy it
 
-### Mobile App Deployment
+## Project Structure
 
-#### Android (Google Play)
-1. **Build APK**
-   ```bash
-   flutter build apk --release
-   ```
-
-2. **Upload to Google Play Console**
-   - Create a developer account
-   - Upload the APK
-   - Configure store listing
-
-#### iOS (App Store)
-1. **Build for iOS**
-   ```bash
-   flutter build ios --release
-   ```
-
-2. **Upload to App Store Connect**
-   - Use Xcode to archive and upload
-   - Configure store listing
-
-## 🔧 Development
-
-### Project Structure
 ```
 lib/
 ├── main.dart                 # App entry point
-├── main_app.dart            # Main app widget
-├── home_screen.dart         # Home screen
-├── chat_screen.dart         # AI chat interface
-├── expense_tracker.dart     # Expense tracking
-├── budget_tracker.dart      # Budget management
-├── goals_screen.dart        # Financial goals
-├── profile_screen.dart      # User profile
-├── backup_restore_screen.dart # Data backup
-└── assets/                 # Images and resources
+├── models/                   # Data models
+├── services/                 # Business logic services
+├── screens/                  # UI screens
+│   ├── auth/                # Authentication screens
+│   ├── finance_screen.dart  # Combined finance management
+│   ├── goals_screen.dart    # Goals and budget tracking
+│   └── enhanced_mali_chat.dart # AI chat interface
+├── widgets/                  # Reusable UI components
+└── firebase_options.dart     # Firebase configuration
 ```
 
-### Key Dependencies
-- `shared_preferences` - Local data storage
-- `firebase_core` - Firebase integration
-- `firebase_auth` - User authentication
-- `cloud_firestore` - Cloud database
-- `http` - API requests
-- `flutter_localizations` - Multi-language support
+## Features in Detail
 
-## 🛡️ Security & Backup
+### Mali AI Assistant
+- Personalized financial advice
+- Multiple personality modes (Sassy & Bold, Encouraging & Gentle, Professional & Direct)
+- Context-aware responses based on your financial data
+- Beautiful animated interface
 
-- **Local Data Storage** - Sensitive data stored locally
-- **Secure Backups** - Encrypted backup system
-- **Firebase Security** - Cloud data protection
-- **Privacy First** - User data protection
+### Financial Management
+- **Expense Tracking**: Add, edit, and categorize expenses
+- **Income Management**: Track multiple income sources
+- **Budget Tracking**: Set and monitor budgets
+- **Goal Setting**: Create and track financial goals
+- **Reports**: Visualize spending patterns and trends
 
-## 🌍 Localization
+### User Experience
+- **Guest Mode**: Try the app without creating an account
+- **Authentication**: Secure login with email/password or anonymous
+- **Responsive Design**: Optimized for all screen sizes
+- **Dark/Light Theme**: Automatic theme switching
 
-Mali supports multiple languages:
-- English (Default)
-- Kiswahili
-- Sheng (Kenyan slang)
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Test thoroughly
 5. Submit a pull request
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Support
+## Support
 
-- **Documentation**: [Wiki](https://github.com/yourusername/mali03/wiki)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/mali03/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/mali03/discussions)
-
-## 🙏 Acknowledgments
-
-- Flutter team for the amazing framework
-- Firebase for backend services
-- Kenyan financial community for insights
-- All contributors and beta testers
+For support, email support@mali-app.com or create an issue in this repository.
 
 ---
 
-**Made with 💅✨ by the Mali team**
+Made with ❤️ by the Mali Team

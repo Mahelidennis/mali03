@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'mali_chat_enhanced.dart';
+import 'screens/enhanced_mali_chat.dart';
 
 class MaliChatScreen extends StatefulWidget {
   const MaliChatScreen({super.key});
@@ -11,6 +11,6 @@ class MaliChatScreen extends StatefulWidget {
 class _MaliChatScreenState extends State<MaliChatScreen> {
   @override
   Widget build(BuildContext context) {
-    return const MaliChatEnhanced();
+    return const EnhancedMaliChat();
   }
 }
