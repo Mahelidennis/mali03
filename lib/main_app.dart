@@ -7,8 +7,11 @@ import 'screens/goals_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/auth/profile_management_screen.dart';
+import 'screens/migration_screen.dart';
 import 'services/auth_service.dart';
+import 'services/migration_service.dart';
 import 'models/auth_models.dart';
+import 'widgets/mali_logo.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -45,8 +48,29 @@ class _MainAppState extends State<MainApp> {
           _authState = state;
           _isLoading = false;
         });
+        
+        // Check for migration if user is authenticated
+        if (state.isAuthenticated) {
+          _checkMigration();
+        }
       }
     });
+  }
+
+  Future<void> _checkMigration() async {
+    try {
+      final needsMigration = await MigrationService.isMigrationNeeded();
+      if (needsMigration && mounted) {
+        // Show migration screen
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const MigrationScreen(),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error checking migration: $e');
+    }
   }
 
   @override
@@ -137,28 +161,10 @@ class _MainAppState extends State<MainApp> {
       elevation: 0,
       title: Row(
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEE2B8D),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.account_balance_wallet,
-              color: Colors.white,
-              size: 20,
-            ),
+          const MaliLogoIcon(
+            size: 32,
           ),
           const SizedBox(width: 12),
-          const Text(
-            'Mali',
-            style: TextStyle(
-              color: Color(0xFF181114),
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-          ),
           if (isAnonymous) ...[
             const SizedBox(width: 8),
             Container(

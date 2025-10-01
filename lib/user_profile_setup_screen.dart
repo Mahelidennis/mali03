@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'widgets/mali_logo.dart';
 import 'permissions_privacy_screen.dart';
 
 class UserProfileSetupScreen extends StatefulWidget {
@@ -195,6 +196,14 @@ class _UserProfileSetupScreenState extends State<UserProfileSetupScreen> {
                   minHeight: 4,
                 ),
               ],
+            ),
+          ),
+          // Logo
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: MaliLogo(
+              width: 100,
+              height: 50,
             ),
           ),
           // Form content

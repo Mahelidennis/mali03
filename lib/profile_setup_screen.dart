@@ -157,7 +157,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.8),
-              backdropFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              // backdropFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             ),
             child: SizedBox(
               width: double.infinity,

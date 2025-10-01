@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'widgets/mali_logo.dart';
 import 'main_app.dart';
 import 'privacy_policy_screen.dart';
 
@@ -47,6 +48,13 @@ class _PermissionsPrivacyScreenState extends State<PermissionsPrivacyScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Logo
+            const Center(
+              child: MaliLogo(
+                width: 100,
+                height: 50,
+              ),
+            ),
             const SizedBox(height: 40),
             // Padlock icon
             Center(

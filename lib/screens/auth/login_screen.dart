@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../services/auth_service.dart';
 import '../../models/auth_models.dart';
+import '../../widgets/mali_logo.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 import '../../main_app.dart';
@@ -154,25 +155,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return Column(
       children: [
         // App logo
-        Container(
+        const MaliLogo(
           width: 80,
           height: 80,
-          decoration: BoxDecoration(
-            color: const Color(0xFFEE2B8D),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFEE2B8D).withOpacity(0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.account_balance_wallet,
-            color: Colors.white,
-            size: 40,
-          ),
         ),
         
         const SizedBox(height: 24),

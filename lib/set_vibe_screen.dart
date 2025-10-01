@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'widgets/mali_logo.dart';
 import 'user_profile_setup_screen.dart';
 
 class SetVibeScreen extends StatefulWidget {
@@ -84,6 +85,14 @@ class _SetVibeScreenState extends State<SetVibeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Logo
+                  const Center(
+                    child: MaliLogo(
+                      width: 100,
+                      height: 50,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   Text(
                     'Choose your vibe',
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(

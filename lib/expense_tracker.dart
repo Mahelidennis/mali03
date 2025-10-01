@@ -1,7 +1,11 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:math';
+import '../models/financial_models.dart';
+import '../services/firestore_database_service.dart';
 
-class Expense {
+// Legacy Expense class for backward compatibility
+class LegacyExpense {
   final String id;
   final String title;
   final double amount;
@@ -9,7 +13,7 @@ class Expense {
   final DateTime date;
   final String? note;
 
-  Expense({
+  LegacyExpense({
     required this.id,
     required this.title,
     required this.amount,
@@ -29,14 +33,31 @@ class Expense {
     };
   }
 
-  factory Expense.fromJson(Map<String, dynamic> json) {
-    return Expense(
+  factory LegacyExpense.fromJson(Map<String, dynamic> json) {
+    return LegacyExpense(
       id: json['id'],
       title: json['title'],
       amount: json['amount'].toDouble(),
       category: json['category'],
       date: DateTime.parse(json['date']),
       note: json['note'],
+    );
+  }
+
+  // Convert to new Expense model
+  Expense toNewExpense() {
+    final now = DateTime.now();
+    return Expense(
+      id: id,
+      title: title,
+      amount: amount,
+      category: category,
+      date: date,
+      note: note,
+      status: 'active',
+      createdAt: now,
+      updatedAt: now,
+      userId: '', // Will be set by the service
     );
   }
 }
@@ -57,25 +78,39 @@ class ExpenseTracker {
     'Other',
   ];
 
-  // Add new expense
+  // Add new expense using Firestore (with SharedPreferences fallback)
   static Future<void> addExpense(Expense expense) async {
-    final prefs = await SharedPreferences.getInstance();
-    final expenses = await getExpenses();
-    expenses.add(expense);
-    
-    final expensesJson = expenses.map((e) => e.toJson()).toList();
-    await prefs.setString(_expensesKey, jsonEncode(expensesJson));
+    try {
+      // Use Firestore as primary storage
+      await FirestoreDatabaseService.addExpense(expense);
+    } catch (e) {
+      // Fallback to SharedPreferences if Firestore fails
+      final prefs = await SharedPreferences.getInstance();
+      final expenses = await getExpenses();
+      expenses.add(expense);
+      
+      final expensesJson = expenses.map((e) => e.toJson()).toList();
+      await prefs.setString(_expensesKey, jsonEncode(expensesJson));
+      throw Exception('Failed to add expense: $e');
+    }
   }
 
-  // Get all expenses
+  // Get all expenses using Firestore (with SharedPreferences fallback)
   static Future<List<Expense>> getExpenses() async {
-    final prefs = await SharedPreferences.getInstance();
-    final expensesString = prefs.getString(_expensesKey);
-    
-    if (expensesString == null) return [];
-    
-    final expensesJson = jsonDecode(expensesString) as List;
-    return expensesJson.map((json) => Expense.fromJson(json)).toList();
+    try {
+      // Use Firestore as primary storage
+      return await FirestoreDatabaseService.getExpenses();
+    } catch (e) {
+      // Fallback to SharedPreferences if Firestore fails
+      final prefs = await SharedPreferences.getInstance();
+      final expensesString = prefs.getString(_expensesKey);
+      
+      if (expensesString == null) return [];
+      
+      final expensesJson = jsonDecode(expensesString) as List;
+      final legacyExpenses = expensesJson.map((json) => LegacyExpense.fromJson(json)).toList();
+      return legacyExpenses.map((legacy) => legacy.toNewExpense()).toList();
+    }
   }
 
   // Get expenses by month

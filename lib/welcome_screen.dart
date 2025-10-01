@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'widgets/mali_logo.dart';
 import 'set_vibe_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -20,6 +21,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Column(
             children: [
               const SizedBox(height: 40),
+              // Logo
+              const MaliLogo(
+                width: 120,
+                height: 60,
+              ),
+              const SizedBox(height: 40),
               // Title
               Text(
                 'Welcome to Mali',
@@ -29,7 +36,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 40),
               // Wave emoji
               const Text(
                 '👋',
