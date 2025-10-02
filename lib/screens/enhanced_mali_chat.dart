@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:math';
 import '../mali_chat_enhanced.dart';
+import '../services/openrouter_service.dart';
 
 class EnhancedMaliChat extends StatefulWidget {
   const EnhancedMaliChat({super.key});
@@ -30,7 +31,11 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
     _initializeAnimations();
     _loadFinancialData();
     _loadUserVibe();
-    _addWelcomeMessage();
+    _loadConversationHistory();
+    // Only add welcome message if no conversation history exists
+    if (_messages.isEmpty) {
+      _addWelcomeMessage();
+    }
   }
 
   void _initializeAnimations() {
@@ -116,10 +121,34 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
     });
   }
 
+  Future<void> _loadConversationHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final historyString = prefs.getString('mali_conversation_history');
+    if (historyString != null) {
+      try {
+        final List<dynamic> historyData = jsonDecode(historyString);
+        final loadedMessages = historyData.map((data) => ChatMessage.fromJson(data)).toList();
+        
+        setState(() {
+          _messages.clear();
+          _messages.addAll(loadedMessages);
+        });
+      } catch (e) {
+        print('Error loading conversation history: $e');
+      }
+    }
+  }
+
+  Future<void> _saveConversationHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final historyData = _messages.map((msg) => msg.toJson()).toList();
+    await prefs.setString('mali_conversation_history', jsonEncode(historyData));
+  }
+
   void _addWelcomeMessage() {
     final welcomeMessages = {
       'Sassy & Bold': [
-        "Hey there, future boss babe! 💅 Ready to slay your financial goals? I'm here to help you become the money queen you were meant to be!",
+        "Hey there, future boss! 💅 Ready to achieve your financial goals? I'm here to help you become the money queen you were meant to be!",
         "What's up, financial warrior? 💪 Let's make your money work harder than you do!",
         "Hey gorgeous! 💖 Ready to turn your financial dreams into reality? I've got your back!",
       ],
@@ -168,13 +197,87 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
     });
   }
 
-  void _generateAIResponse(String userMessage) {
+  Future<void> _generateAIResponse(String userMessage) async {
+    try {
+      // Build conversation history for context
+      final conversationHistory = _messages
+          .where((msg) => msg.isFromUser || msg.messageType == 'ai_response')
+          .take(10) // Keep last 10 messages for context
+          .map((msg) => {
+                'role': msg.isFromUser ? 'user' : 'assistant',
+                'content': msg.text,
+              })
+          .toList();
+
+      // Calculate financial context
+      final totalExpenses = _financialData['expenses']?.fold<double>(0.0, (sum, expense) => sum + (expense['amount'] ?? 0.0)) ?? 0.0;
+      final totalIncome = _financialData['incomes']?.fold<double>(0.0, (sum, income) => sum + (income['amount'] ?? 0.0)) ?? 0.0;
+      final activeGoals = _financialData['goals']?.length ?? 0;
+      final budgetStatus = totalIncome > totalExpenses ? 'Under Budget' : 'Over Budget';
+
+      final financialContext = {
+        'totalExpenses': totalExpenses,
+        'totalIncome': totalIncome,
+        'activeGoals': activeGoals,
+        'budgetStatus': budgetStatus,
+      };
+
+      // Get AI response from OpenRouter
+      final aiResponse = await OpenRouterService.getMaliCoachingResponse(
+        userMessage: userMessage,
+        financialContext: financialContext,
+        conversationHistory: conversationHistory,
+      );
+
+      setState(() {
+        _messages.add(ChatMessage(
+          text: aiResponse,
+          isFromUser: false,
+          timestamp: DateTime.now(),
+          messageType: 'ai_response',
+        ));
+        _isLoading = false;
+      });
+
+      _scrollToBottom();
+      
+      // Save conversation history
+      _saveConversationHistory();
+    } catch (e) {
+      // Fallback response if API fails
+      final fallbackResponse = _getFallbackResponse(userMessage);
+      
+      setState(() {
+        _messages.add(ChatMessage(
+          text: fallbackResponse,
+          isFromUser: false,
+          timestamp: DateTime.now(),
+          messageType: 'ai_response',
+        ));
+        _isLoading = false;
+      });
+
+      _scrollToBottom();
+      
+      // Show error to user
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sorry, I encountered an issue. Please try again.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
+  }
+
+  String _getFallbackResponse(String userMessage) {
     final responses = {
       'Sassy & Bold': [
-        "Honey, that's a great question! 💅 Let me break it down for you...",
-        "Ooh, I love where your head's at! 💖 Here's what I think...",
-        "Girl, you're asking all the right questions! 🔥 Let me help you out...",
-        "Babe, I've got you covered! 💪 Here's the tea...",
+        "That's a great question! 💅 Let me break it down for you...",
+        "I love where your head's at! 💖 Here's what I think...",
+        "You're asking all the right questions! 🔥 Let me help you out...",
+        "I've got you covered! 💪 Here's the insight...",
       ],
       'Encouraging & Gentle': [
         "That's a wonderful question! 🌸 Let me help you understand...",
@@ -193,19 +296,7 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
     final responseTemplates = responses[_selectedVibe] ?? responses['Sassy & Bold']!;
     final randomResponse = responseTemplates[Random().nextInt(responseTemplates.length)];
 
-    final aiResponse = "$randomResponse\n\nBased on your financial data, I can see you have some great opportunities to optimize your money management. Would you like me to analyze your spending patterns or help you set up a budget?";
-
-    setState(() {
-      _messages.add(ChatMessage(
-        text: aiResponse,
-        isFromUser: false,
-        timestamp: DateTime.now(),
-        messageType: 'advice',
-      ));
-      _isLoading = false;
-    });
-
-    _scrollToBottom();
+    return "$randomResponse\n\nBased on your financial data, I can see you have some great opportunities to optimize your money management. Would you like me to analyze your spending patterns or help you set up a budget?";
   }
 
   void _scrollToBottom() {

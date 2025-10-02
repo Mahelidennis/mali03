@@ -33,6 +33,12 @@ class OpenRouterService {
         'content': userMessage,
       });
       
+      print('Sending request to OpenRouter with model: ${ApiConfig.defaultModel}');
+      print('Request payload: ${jsonEncode({
+        'model': ApiConfig.defaultModel,
+        'messages': messages,
+      })}');
+      
       // Make API request
       final response = await http.post(
         Uri.parse('${ApiConfig.openRouterBaseUrl}/chat/completions'),
@@ -43,14 +49,23 @@ class OpenRouterService {
         }),
       );
       
+      print('OpenRouter response status: ${response.statusCode}');
+      print('OpenRouter response body: ${response.body}');
+      
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final aiResponse = data['choices'][0]['message']['content'] as String;
-        return aiResponse;
+        if (data['choices'] != null && data['choices'].isNotEmpty) {
+          final aiResponse = data['choices'][0]['message']['content'] as String;
+          print('AI Response: $aiResponse');
+          return aiResponse;
+        } else {
+          throw Exception('No choices in API response: ${response.body}');
+        }
       } else {
         throw Exception('OpenRouter API error: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
+      print('OpenRouter API error: $e');
       throw Exception('Failed to get AI response: $e');
     }
   }
@@ -59,29 +74,42 @@ class OpenRouterService {
   static Future<String> getMaliCoachingResponse({
     required String userMessage,
     required Map<String, dynamic> financialContext,
+    List<Map<String, String>>? conversationHistory,
   }) async {
     final systemPrompt = '''
-You are Mali, a sassy and supportive financial big sister from Kenya. You help young women make smart money decisions with a mix of local wisdom, global financial knowledge, and a friendly, empowering tone.
+You are Mali, a sassy and supportive financial big sister. You help young women make smart money decisions with practical financial knowledge and a friendly, empowering tone.
 
 Your personality traits:
 - Supportive and encouraging, but also direct when needed
-- Use Kenyan Sheng and local references occasionally
 - Financially savvy with practical, actionable advice
 - Empathetic but won't let users make excuses
 - Celebrates wins and provides tough love when necessary
+- Always maintain context from previous conversation
+- Ask follow-up questions to better understand user needs
 
-User's financial context:
-- Total Expenses: KES ${financialContext['totalExpenses'] ?? 0}
-- Total Income: KES ${financialContext['totalIncome'] ?? 0}
+User's current financial context:
+- Total Expenses: KES ${financialContext['totalExpenses']?.toStringAsFixed(0) ?? '0'}
+- Total Income: KES ${financialContext['totalIncome']?.toStringAsFixed(0) ?? '0'}
 - Active Goals: ${financialContext['activeGoals'] ?? 0}
 - Budget Status: ${financialContext['budgetStatus'] ?? 'Unknown'}
 
-Keep responses conversational, practical, and under 200 words. Use emojis sparingly but effectively.
+Guidelines:
+- Keep responses conversational, practical, and under 200 words
+- Use emojis sparingly but effectively (2-3 max per response)
+- Reference the user's financial data when relevant
+- Provide actionable next steps
+- If user is overspending, be supportive but firm
+- If user is doing well, celebrate their progress
+- Always maintain the conversation flow and context
+- Speak only in English
+
+Remember: You're having a real conversation, not just answering individual questions. Build on previous messages and maintain continuity.
 ''';
     
     return await sendChatMessage(
       userMessage: userMessage,
       systemPrompt: systemPrompt,
+      conversationHistory: conversationHistory,
     );
   }
   
@@ -113,5 +141,6 @@ Give me 3 key insights and 1 actionable tip.
     );
   }
 }
+
 
 
