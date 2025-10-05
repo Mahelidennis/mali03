@@ -4,8 +4,8 @@
   "description": "Mali - Your Personal Financial AI Assistant",
   "main": "build/web/index.html",
   "scripts": {
-    "build": "flutter build web --release",
-    "start": "flutter run -d chrome --web-port=3000"
+    "build": "echo 'Using pre-built web files'",
+    "start": "npx serve public -p 3000"
   },
   "keywords": [
     "flutter",
