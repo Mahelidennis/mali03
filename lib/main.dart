@@ -5,7 +5,16 @@ import 'main_app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  // Initialize Firebase with error handling
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Firebase initialization failed: $e');
+    // Continue without Firebase for now
+  }
+  
   runApp(const MyApp());
 }
 
@@ -33,11 +42,9 @@ class MyApp extends StatelessWidget {
           primary: Color(0xFFEE2B8D), // Hot pink
           secondary: Color(0xFFFDF2F8), // Light pink
           surface: Colors.white,
-          background: Color(0xFFFDF2F8),
           onPrimary: Colors.white,
           onSecondary: Color(0xFF181114),
           onSurface: Color(0xFF181114),
-          onBackground: Color(0xFF181114),
         ),
         textTheme: const TextTheme(
           headlineLarge: TextStyle(color: Color(0xFF181114), fontWeight: FontWeight.bold),
@@ -50,7 +57,7 @@ class MyApp extends StatelessWidget {
             backgroundColor: const Color(0xFFEE2B8D),
             foregroundColor: Colors.white,
             elevation: 8,
-            shadowColor: const Color(0xFFEE2B8D).withOpacity(0.3),
+            shadowColor: const Color(0xFFEE2B8D).withValues(alpha: 0.3),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
         ),
@@ -63,7 +70,7 @@ class MyApp extends StatelessWidget {
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
+            borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -86,11 +93,9 @@ class MyApp extends StatelessWidget {
           primary: Color(0xFFEE2B8D),
           secondary: Color(0xFF2A1A1F),
           surface: Color(0xFF1A1A1A),
-          background: Color(0xFF0A0A0A),
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onSurface: Colors.white,
-          onBackground: Colors.white,
         ),
         textTheme: const TextTheme(
           headlineLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -103,7 +108,7 @@ class MyApp extends StatelessWidget {
             backgroundColor: const Color(0xFFEE2B8D),
             foregroundColor: Colors.white,
             elevation: 8,
-            shadowColor: const Color(0xFFEE2B8D).withOpacity(0.3),
+            shadowColor: const Color(0xFFEE2B8D).withValues(alpha: 0.3),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
         ),

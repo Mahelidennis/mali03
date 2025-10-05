@@ -5,7 +5,7 @@ class ApiConfig {
   static const String openRouterBaseUrl = 'https://openrouter.ai/api/v1';
   
   // OpenRouter Model Configuration
-  static const String defaultModel = 'deepseek/deepseek-r1-0528-qwen3-8b:free';
+  static const String defaultModel = 'meta-llama/llama-3.1-8b-instruct:free';
   
   // Optional headers for OpenRouter leaderboards
   static const String siteUrl = 'https://mali-app.com';
@@ -19,5 +19,6 @@ class ApiConfig {
     'Content-Type': 'application/json',
   };
 }
+
 
 

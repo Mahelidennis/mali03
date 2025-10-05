@@ -900,7 +900,7 @@ class EmotionalTherapyService {
         
       default:
         title = "Nurturing Your Calm";
-        description: "I love seeing you so calm and centered! Let's use this peaceful energy to make thoughtful financial decisions.";
+        description = "I love seeing you so calm and centered! Let's use this peaceful energy to make thoughtful financial decisions.";
         exercises = [
           "Appreciate your current state of mind",
           "Review your financial goals with clarity",

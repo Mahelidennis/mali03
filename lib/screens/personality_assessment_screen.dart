@@ -337,7 +337,7 @@ class PersonalityResultsScreen extends StatelessWidget {
                       personality.description,
                       style: const TextStyle(
                         fontSize: 16,
-                        color: Colors.grey.shade600,
+                        color: const Color(0xFF757575),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -455,7 +455,7 @@ class PersonalityResultsScreen extends StatelessWidget {
                       item,
                       style: const TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade700,
+                        color: const Color(0xFF616161),
                       ),
                     ),
                   ),

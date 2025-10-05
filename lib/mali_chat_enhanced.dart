@@ -17,6 +17,26 @@ class ChatMessage {
     this.messageType,
     this.data,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'text': text,
+      'isFromUser': isFromUser,
+      'timestamp': timestamp.toIso8601String(),
+      'messageType': messageType,
+      'data': data,
+    };
+  }
+
+  factory ChatMessage.fromJson(Map<String, dynamic> json) {
+    return ChatMessage(
+      text: json['text'] as String,
+      isFromUser: json['isFromUser'] as bool,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      messageType: json['messageType'] as String?,
+      data: json['data'] as Map<String, dynamic>?,
+    );
+  }
 }
 
 class MaliChatEnhanced extends StatefulWidget {
@@ -885,9 +905,16 @@ class _MaliChatEnhancedState extends State<MaliChatEnhanced> {
               ),
               child: TextField(
                 controller: _messageController,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
                 decoration: const InputDecoration(
                   hintText: 'Ask Mali about your finances...',
-                  hintStyle: TextStyle(color: Colors.grey),
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),

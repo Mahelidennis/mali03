@@ -39,15 +39,17 @@ class OpenRouterService {
         'messages': messages,
       })}');
       
-      // Make API request
+      // Make API request with timeout
       final response = await http.post(
         Uri.parse('${ApiConfig.openRouterBaseUrl}/chat/completions'),
         headers: ApiConfig.openRouterHeaders,
         body: jsonEncode({
           'model': ApiConfig.defaultModel,
           'messages': messages,
+          'max_tokens': 500,
+          'temperature': 0.7,
         }),
-      );
+      ).timeout(const Duration(seconds: 30));
       
       print('OpenRouter response status: ${response.statusCode}');
       print('OpenRouter response body: ${response.body}');

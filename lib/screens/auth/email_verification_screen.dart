@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../../main_app.dart';
@@ -22,11 +23,27 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   String? _successMessage;
   int _resendCount = 0;
   int _maxResends = 3;
+  Timer? _verificationTimer;
 
   @override
   void initState() {
     super.initState();
     _checkEmailVerification();
+    _startPeriodicVerificationCheck();
+  }
+
+  @override
+  void dispose() {
+    _verificationTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startPeriodicVerificationCheck() {
+    _verificationTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (!_isLoading && !_isResending) {
+        _checkEmailVerification();
+      }
+    });
   }
 
   Future<void> _checkEmailVerification() async {
@@ -36,15 +53,26 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     });
 
     try {
-      // Check if email is verified
-      await Future.delayed(const Duration(seconds: 2)); // Simulate check delay
+      // Reload the user to get the latest verification status
+      await AuthService.currentUser?.reload();
       
+      // Check if email is verified
       if (AuthService.isEmailVerified) {
         if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MainApp()),
-          );
+          setState(() {
+            _isLoading = false;
+            _successMessage = 'Email verified successfully! Redirecting...';
+          });
+          
+          // Wait a moment to show success message
+          await Future.delayed(const Duration(seconds: 2));
+          
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MainApp()),
+            );
+          }
         }
       } else {
         setState(() {
@@ -199,7 +227,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         
         // Instructions
         Text(
-          'Please check your email and click the verification link to activate your account.',
+          'Please check your email and click the verification link to activate your account.\n\nIf you don\'t see the email, check your spam folder.',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: const Color(0xFF575354),
           ),
@@ -272,6 +300,39 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             ),
           ),
         ],
+        
+        const SizedBox(height: 16),
+        
+        // Helpful tip
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEE2B8D).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0xFFEE2B8D).withOpacity(0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.lightbulb_outline,
+                color: const Color(0xFFEE2B8D),
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Tip: The verification email might take a few minutes to arrive. Check your spam folder if you don\'t see it in your inbox.',
+                  style: TextStyle(
+                    color: const Color(0xFF575354),
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

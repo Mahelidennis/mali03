@@ -701,7 +701,7 @@ class FinancialHealthScoringService {
           description: 'You\'ve reached the ${entry.value['level']} level in financial health!',
           type: AchievementType.milestone,
           icon: '🏆',
-          points: entry.value['points'] as int,
+          points: entry.value!['points'] as int,
           earnedAt: DateTime.now(),
           isNew: true,
         ));
@@ -721,14 +721,14 @@ class FinancialHealthScoringService {
     };
     
     for (final entry in streakAchievements.entries) {
-      if (!existingIds.contains(entry.key) && healthScore.streakDays >= entry.value['days']) {
+      if (!existingIds.contains(entry.key) && healthScore.streakDays >= (entry.value!['days'] as int)) {
         await _addAchievement(Achievement(
           id: entry.key,
-          title: '${entry.value['days']}-Day Streak!',
-          description: 'You\'ve maintained good financial habits for ${entry.value['days']} days!',
+          title: '${entry.value!['days']}-Day Streak!',
+          description: 'You\'ve maintained good financial habits for ${entry.value!['days']} days!',
           type: AchievementType.streak,
           icon: '🔥',
-          points: entry.value['points'] as int,
+          points: entry.value!['points'] as int,
           earnedAt: DateTime.now(),
           isNew: true,
         ));

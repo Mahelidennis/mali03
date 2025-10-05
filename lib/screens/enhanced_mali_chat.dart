@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:math';
 import '../mali_chat_enhanced.dart';
 import '../services/openrouter_service.dart';
+import '../widgets/mali_logo.dart';
 
 class EnhancedMaliChat extends StatefulWidget {
   const EnhancedMaliChat({super.key});
@@ -34,7 +35,7 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
     _loadConversationHistory();
     // Only add welcome message if no conversation history exists
     if (_messages.isEmpty) {
-      _addWelcomeMessage();
+    _addWelcomeMessage();
     }
   }
 
@@ -317,9 +318,9 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
       backgroundColor: const Color(0xFFFDF2F8),
       body: Column(
         children: [
-          // Enhanced Header
+          // Compact Header
           Container(
-            padding: const EdgeInsets.fromLTRB(24, 60, 24, 20),
+            padding: const EdgeInsets.fromLTRB(24, 50, 24, 12),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -330,110 +331,66 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
                 end: Alignment.bottomRight,
               ),
               borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
               ),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFFEE2B8D).withOpacity(0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
-            child: Column(
+            child: Row(
               children: [
-                // Mali Avatar with Animation
-                AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _pulseAnimation.value,
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.white,
-                              Colors.white.withOpacity(0.9),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                // Mali Status
+                Expanded(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Your AI Financial Assistant',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
                         ),
-                        child: const Icon(
-                          Icons.psychology,
-                          size: 40,
-                          color: Color(0xFFEE2B8D),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-                // Mali Name and Status
-                FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Mali',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Colors.green,
-                                shape: BoxShape.circle,
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: const BoxDecoration(
+                                  color: Colors.green,
+                                  shape: BoxShape.circle,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Online',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
+                              const SizedBox(width: 6),
+                              const Text(
+                                'Online',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Your Personal Financial AI Assistant',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white.withOpacity(0.9),
-                          fontWeight: FontWeight.w400,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -475,12 +432,23 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
                     decoration: BoxDecoration(
                       color: const Color(0xFFF4F0F2),
                       borderRadius: BorderRadius.circular(25),
+                      border: Border.all(
+                        color: Colors.grey.withOpacity(0.3),
+                        width: 1,
+                      ),
                     ),
                     child: TextField(
                       controller: _messageController,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
                       decoration: const InputDecoration(
                         hintText: 'Ask Mali anything about your finances...',
-                        hintStyle: TextStyle(color: Colors.grey),
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 20,

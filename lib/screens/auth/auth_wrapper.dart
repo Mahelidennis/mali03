@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../../models/auth_models.dart';
 import 'login_screen.dart';
+import 'email_verification_screen.dart';
 import '../../main_app.dart';
 import '../../welcome_screen.dart';
 
@@ -39,9 +40,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
         // User is authenticated
         if (authState.isAuthenticated && authState.user != null) {
-          // Check if email needs verification
-          if (authState.needsEmailVerification) {
-            return const EmailVerificationRequiredScreen();
+          // Check if email needs verification (but not for anonymous users)
+          if (authState.needsEmailVerification && !authState.isAnonymous) {
+            return EmailVerificationScreen(email: authState.user!.email);
           }
           
           // User is fully authenticated

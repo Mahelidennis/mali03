@@ -18,7 +18,7 @@ class SampleDataGenerator {
     'Other',
   ];
 
-  static const List<String> _expenseTitles = {
+  static const Map<String, List<String>> _expenseTitles = {
     'Food & Dining': [
       'Lunch at restaurant',
       'Grocery shopping',
@@ -128,7 +128,7 @@ class SampleDataGenerator {
     'other',
   ];
 
-  static const List<String> _goalTitles = {
+  static const Map<String, List<String>> _goalTitles = {
     'emergency': [
       'Emergency Fund',
       'Rainy Day Fund',
@@ -193,7 +193,7 @@ class SampleDataGenerator {
         final expense = Expense(
           id: '${DateTime.now().millisecondsSinceEpoch}_${i}_$monthOffset',
           title: title,
-          amount: _generateExpenseAmount(category),
+          amount: _generateExpenseAmount(category).toDouble(),
           category: category,
           date: _generateRandomDateInMonth(month, monthEnd),
           note: _random.nextBool() ? _generateRandomNote() : null,
@@ -310,7 +310,7 @@ class SampleDataGenerator {
       email: _generateRandomEmail(),
       phoneNumber: _generateRandomPhoneNumber(),
       gender: ['male', 'female'][_random.nextInt(2)],
-      monthlyIncome: 30000 + _random.nextInt(70000), // 30k-100k
+      monthlyIncome: (30000 + _random.nextInt(70000)).toDouble(), // 30k-100k
       currency: 'KES',
       interests: _generateRandomInterests(),
       preferredLanguage: ['en', 'sw', 'sh'][_random.nextInt(3)],
@@ -467,7 +467,7 @@ class SampleDataGenerator {
     
     final count = 3 + _random.nextInt(4); // 3-6 interests
     final shuffled = List.from(allInterests)..shuffle();
-    return shuffled.take(count).toList();
+    return shuffled.take(count).toList().cast<String>();
   }
 
   static String _generateRandomPrimaryGoal() {

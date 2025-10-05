@@ -7,8 +7,6 @@ import 'budget_tracking_screen.dart';
 import 'financial_reports_screen.dart';
 import 'goal_management_screen.dart';
 import 'mali_chat_enhanced.dart';
-import 'notification_service.dart';
-import 'notification_center_screen.dart';
 import 'widgets/guest_mode_banner.dart';
 import 'dart:convert';
 
@@ -22,29 +20,11 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic> _financialData = {};
   bool _isLoading = true;
-  final NotificationService _notificationService = NotificationService();
-  int _unreadNotificationCount = 0;
 
   @override
   void initState() {
     super.initState();
     _loadFinancialData();
-    _initializeNotifications();
-  }
-
-  Future<void> _initializeNotifications() async {
-    await _notificationService.initialize();
-    await _notificationService.runAllChecks();
-    await _loadNotificationCount();
-  }
-
-  Future<void> _loadNotificationCount() async {
-    final count = await _notificationService.getUnreadCount();
-    if (mounted) {
-      setState(() {
-        _unreadNotificationCount = count;
-      });
-    }
   }
 
   Future<void> _loadFinancialData() async {
@@ -157,84 +137,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: const EdgeInsets.only(top: 50, left: 24, right: 24, bottom: 16),
             child: Column(
               children: [
-                // Main Dashboard title
-                const Text(
-                  'Main Dashboard',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                        // Mali title with notification and settings icons
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Mali',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                // Notification icon with badge
-                                Stack(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.notifications, color: Colors.black87),
-                                      onPressed: () async {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (_) => const NotificationCenterScreen()),
-                                        );
-                                        await _loadNotificationCount();
-                                      },
-                                    ),
-                                    if (_unreadNotificationCount > 0)
-                                      Positioned(
-                                        right: 8,
-                                        top: 8,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFEE2B8D),
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                          constraints: const BoxConstraints(
-                                            minWidth: 16,
-                                            minHeight: 16,
-                                          ),
-                                          child: Text(
-                                            '$_unreadNotificationCount',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.settings, color: Colors.black87),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                const SizedBox(height: 8),
                 // Welcome message
                 const Text(
                   'Hey, financial warrior! Ready to conquer your goals? 💪',
@@ -271,10 +173,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 
                                 // Goals section
                                 _buildGoalsSection(),
-                                const SizedBox(height: 24),
-                                
-                                // Critical Notifications section
-                                _buildCriticalNotificationsSection(),
                                 const SizedBox(height: 24),
                                 
                                 // Mali Chat Insights section
@@ -1371,136 +1269,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Widget _buildCriticalNotificationsSection() {
-    return FutureBuilder<List<AppNotification>>(
-      future: _notificationService.getCriticalNotifications(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const SizedBox.shrink();
-        }
-
-        final criticalNotifications = snapshot.data!;
-        
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.red[50],
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.red[200]!),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.red.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.warning,
-                        color: Colors.red[700],
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Critical Alerts',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red[700],
-                        ),
-                      ),
-                    ],
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const NotificationCenterScreen()),
-                      );
-                      await _loadNotificationCount();
-                    },
-                    child: const Text(
-                      'View All',
-                      style: TextStyle(
-                        color: Color(0xFFEE2B8D),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              ...criticalNotifications.take(3).map((notification) => 
-                _buildCriticalNotificationItem(notification)
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCriticalNotificationItem(AppNotification notification) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red[200]!),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.error_outline,
-            color: Colors.red[600],
-            size: 20,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  notification.title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.red[700],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  notification.message,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.grey),
-            onPressed: () async {
-              await _notificationService.dismissNotification(notification.id);
-              await _loadNotificationCount();
-              setState(() {}); // Refresh the section
-            },
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildMaliInsightsSection() {
     final totalIncome = _financialData['total_income'] ?? 0.0;

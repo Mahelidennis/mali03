@@ -266,7 +266,7 @@ class ValidationService {
 
   /// Sanitize string input
   static String sanitizeString(String input) {
-    return input.trim().replaceAll(RegExp(r'[<>"\'']'), '');
+    return input.trim().replaceAll('<', '').replaceAll('>', '').replaceAll('"', '').replaceAll('\'', '');
   }
 
   /// Validate amount input

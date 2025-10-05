@@ -64,8 +64,17 @@ class AuthService {
       // Update user profile
       await user.updateDisplayName(data.fullName);
       
-      // Send email verification
-      await user.sendEmailVerification();
+      // Send email verification with custom action code settings
+      await user.sendEmailVerification(
+        ActionCodeSettings(
+          url: 'https://mali-prod.web.app/#/verify-email',
+          handleCodeInApp: true,
+          iOSBundleId: 'com.example.mali03',
+          androidPackageName: 'com.example.mali03',
+          androidInstallApp: true,
+          androidMinimumVersion: '21',
+        ),
+      );
 
       // Save user data to Firestore
       await _saveUserProfile(user, data);
@@ -223,7 +232,16 @@ class AuthService {
         );
       }
 
-      await user.sendEmailVerification();
+      await user.sendEmailVerification(
+        ActionCodeSettings(
+          url: 'https://mali-prod.web.app/#/verify-email',
+          handleCodeInApp: true,
+          iOSBundleId: 'com.example.mali03',
+          androidPackageName: 'com.example.mali03',
+          androidInstallApp: true,
+          androidMinimumVersion: '21',
+        ),
+      );
       
       return AuthResult.success(
         user,
@@ -373,6 +391,33 @@ class AuthService {
 
   /// Check if user is anonymous
   static bool get isAnonymous => _auth.currentUser?.isAnonymous ?? false;
+
+  /// Handle email verification from deep link
+  static Future<AuthResult> handleEmailVerification(String actionCode) async {
+    try {
+      // Verify the action code
+      await _auth.applyActionCode(actionCode);
+      
+      // Reload the user to get updated verification status
+      await _auth.currentUser?.reload();
+      
+      // Update auth state
+      _updateAuthState(_auth.currentUser);
+      
+      return AuthResult.success(
+        _auth.currentUser!,
+        message: 'Email verified successfully!',
+      );
+    } on FirebaseAuthException catch (e) {
+      return AuthResult.failure(
+        AuthException.fromFirebaseAuthException(e),
+      );
+    } catch (e) {
+      return AuthResult.failure(
+        AuthException('Failed to verify email: ${e.toString()}'),
+      );
+    }
+  }
 
   /// Get user profile from Firestore
   static Future<AuthUserProfile?> getUserProfile() async {

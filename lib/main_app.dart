@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'mali_chat_screen.dart';
-import 'profile_screen.dart';
 import 'home_screen.dart';
 import 'screens/finance_screen.dart';
 import 'screens/goals_screen.dart';
@@ -12,6 +11,11 @@ import 'services/auth_service.dart';
 import 'services/migration_service.dart';
 import 'models/auth_models.dart';
 import 'widgets/mali_logo.dart';
+import 'notification_center_screen.dart';
+import 'settings_screen.dart';
+import 'screens/sms_permission_screen.dart';
+import 'screens/sms_insights_screen.dart';
+import 'services/sms_service_factory.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -52,6 +56,7 @@ class _MainAppState extends State<MainApp> {
         // Check for migration if user is authenticated
         if (state.isAuthenticated) {
           _checkMigration();
+          _checkSmsPermission();
         }
       }
     });
@@ -70,6 +75,56 @@ class _MainAppState extends State<MainApp> {
       }
     } catch (e) {
       print('Error checking migration: $e');
+    }
+  }
+
+  Future<void> _checkSmsPermission() async {
+    try {
+      final hasConsent = await SmsServiceFactory.hasUserConsent();
+      final hasPermission = await SmsServiceFactory.hasSmsPermission();
+      
+      // If user hasn't given consent yet, show permission screen
+      if (!hasConsent && mounted) {
+        final result = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(
+            builder: (context) => const SmsPermissionScreen(),
+          ),
+        );
+        
+        // If user enabled tracking, start scanning
+        if (result == true) {
+          _startSmsScanning();
+        }
+      } else if (hasPermission) {
+        // If permission is already granted, start scanning
+        _startSmsScanning();
+      }
+    } catch (e) {
+      print('Error checking SMS permission: $e');
+    }
+  }
+
+  Future<void> _startSmsScanning() async {
+    try {
+      // Scan for M-PESA transactions
+      final transactions = await SmsServiceFactory.scanMpesaTransactions();
+      
+      if (transactions.isNotEmpty) {
+        // Save transactions
+        await SmsServiceFactory.saveTransactions(transactions);
+        
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Found ${transactions.length} new M-PESA transactions'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error scanning SMS transactions: $e');
     }
   }
 
@@ -161,9 +216,11 @@ class _MainAppState extends State<MainApp> {
       elevation: 0,
       title: Row(
         children: [
-          const MaliLogoIcon(
-            size: 32,
-          ),
+               const MaliLogo(
+                 width: 250,
+                 height: 150,
+                 textSize: 32,
+               ),
           const SizedBox(width: 12),
           if (isAnonymous) ...[
             const SizedBox(width: 8),
@@ -187,6 +244,31 @@ class _MainAppState extends State<MainApp> {
         ],
       ),
       actions: [
+        // Notification icon
+        Stack(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.notifications_outlined, color: Colors.black87),
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NotificationCenterScreen()),
+                );
+              },
+            ),
+            // Add notification badge here if needed
+          ],
+        ),
+        // Settings icon
+        IconButton(
+          icon: const Icon(Icons.settings_outlined, color: Colors.black87),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            );
+          },
+        ),
         if (isAuthenticated && !isAnonymous) ...[
           // Authenticated user menu
           PopupMenuButton<String>(
@@ -206,6 +288,9 @@ class _MainAppState extends State<MainApp> {
                 case 'profile':
                   _navigateToProfileManagement();
                   break;
+                case 'sms_insights':
+                  _navigateToSmsInsights();
+                  break;
                 case 'signout':
                   _signOut();
                   break;
@@ -219,6 +304,16 @@ class _MainAppState extends State<MainApp> {
                     const Icon(Icons.person, color: Color(0xFFEE2B8D)),
                     const SizedBox(width: 8),
                     const Text('Profile'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'sms_insights',
+                child: Row(
+                  children: [
+                    const Icon(Icons.sms, color: Color(0xFFEE2B8D)),
+                    const SizedBox(width: 8),
+                    const Text('SMS Insights'),
                   ],
                 ),
               ),
@@ -311,6 +406,15 @@ class _MainAppState extends State<MainApp> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const ProfileManagementScreen()),
+    );
+  }
+
+  void _navigateToSmsInsights() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SmsInsightsScreen(),
+      ),
     );
   }
 
