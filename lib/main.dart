@@ -1,21 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-import 'main_app.dart';
+// Temporarily use offline version for faster loading
+import 'main_offline.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Firebase with error handling
-  try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    print('Firebase initialized successfully');
-  } catch (e) {
-    print('Firebase initialization failed: $e');
-    // Continue without Firebase for now
-  }
-  
-  runApp(const MyApp());
+void main() {
+  runApp(const OfflineApp());
 }
 
 
