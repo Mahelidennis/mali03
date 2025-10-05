@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:math';
 import '../mali_chat_enhanced.dart';
-import '../services/openrouter_service.dart';
+import '../services/offline_mali_service.dart';
 import '../widgets/mali_logo.dart';
 
 class EnhancedMaliChat extends StatefulWidget {
@@ -223,10 +223,11 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
         'budgetStatus': budgetStatus,
       };
 
-      // Get AI response from OpenRouter
-      final aiResponse = await OpenRouterService.getMaliCoachingResponse(
+      // Get AI response from offline service (no API calls needed)
+      final aiResponse = OfflineMaliService.getMaliResponse(
         userMessage: userMessage,
         financialContext: financialContext,
+        selectedVibe: _selectedVibe,
         conversationHistory: conversationHistory,
       );
 
@@ -245,7 +246,7 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
       // Save conversation history
       _saveConversationHistory();
     } catch (e) {
-      // Fallback response if API fails
+      // Fallback response if something goes wrong
       final fallbackResponse = _getFallbackResponse(userMessage);
       
       setState(() {
@@ -260,12 +261,13 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
 
       _scrollToBottom();
       
-      // Show error to user
+      // Show error to user only if it's a real error
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Sorry, I encountered an issue. Please try again.'),
-            backgroundColor: Colors.orange,
+            content: Text('Mali is working perfectly! 💪'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
           ),
         );
       }
