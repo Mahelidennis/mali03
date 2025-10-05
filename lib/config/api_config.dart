@@ -1,7 +1,7 @@
 /// API Configuration for Mali App
 class ApiConfig {
   // Groq API Configuration (Free Tier - 14,400 requests/day)
-  static const String groqApiKey = 'YOUR_GROQ_API_KEY_HERE'; // You'll need to get this
+  static const String groqApiKey = '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';
   static const String groqBaseUrl = 'https://api.groq.com/openai/v1';
   
   // Groq Model Configuration (Fast and free)
