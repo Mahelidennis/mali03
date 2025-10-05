@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:math';
 import '../mali_chat_enhanced.dart';
-import '../services/offline_mali_service.dart';
+import '../services/hybrid_mali_service.dart';
 import '../widgets/mali_logo.dart';
 
 class EnhancedMaliChat extends StatefulWidget {
@@ -223,12 +223,13 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
         'budgetStatus': budgetStatus,
       };
 
-      // Get AI response from offline service (no API calls needed)
-      final aiResponse = OfflineMaliService.getMaliResponse(
+      // Get AI response from hybrid service (tries API first, falls back to offline)
+      final aiResponse = await HybridMaliService.getMaliResponse(
         userMessage: userMessage,
         financialContext: financialContext,
         selectedVibe: _selectedVibe,
         conversationHistory: conversationHistory,
+        preferOffline: false, // Set to true to always use offline mode
       );
 
       setState(() {
