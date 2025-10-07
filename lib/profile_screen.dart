@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'financial_reports_screen.dart';
 import 'notification_center_screen.dart';
+import 'services/auth_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,8 +12,67 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String _userName = 'User';
+  String _userEmail = 'user@example.com';
+  String? _userPhotoUrl;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      // Try to load from Firebase Auth first
+      final user = AuthService.currentUser;
+      if (user != null) {
+        print('👤 Loading profile data from Firebase Auth: ${user.email}');
+        setState(() {
+          _userName = user.displayName ?? user.email?.split('@').first ?? 'User';
+          _userEmail = user.email ?? 'user@example.com';
+          _userPhotoUrl = user.photoURL;
+          _isLoading = false;
+        });
+        print('✅ Profile data loaded: $_userName ($_userEmail)');
+        return;
+      }
+
+      // Fallback to default values
+      print('⚠️ No Firebase user, using default profile');
+      setState(() {
+        _userName = 'User';
+        _userEmail = 'user@example.com';
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('❌ Error loading profile data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Profile',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 1,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFEE2B8D)),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -70,9 +131,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Sarah M.',
-                  style: TextStyle(
+                Text(
+                  _userName,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

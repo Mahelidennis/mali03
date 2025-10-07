@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'main.dart';
 import 'edit_profile_screen.dart';
 import 'vibe_settings_screen.dart';
 import 'privacy_policy_screen.dart';
+import 'services/auth_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -13,8 +15,9 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _userName = 'Jane Mwangi';
-  String _userEmail = 'Jane.Mwangi@email.com';
+  String _userName = 'User';
+  String _userEmail = 'user@example.com';
+  String? _userPhotoUrl;
 
   @override
   void initState() {
@@ -23,14 +26,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString('user_name') ?? 'Jane Mwangi';
-    final email = prefs.getString('user_email') ?? 'Jane.Mwangi@email.com';
-    
-    setState(() {
-      _userName = name;
-      _userEmail = email;
-    });
+    try {
+      // Try to load from Firebase Auth first
+      final user = AuthService.currentUser;
+      if (user != null) {
+        print('👤 Loading user data from Firebase Auth: ${user.email}');
+        setState(() {
+          _userName = user.displayName ?? user.email?.split('@').first ?? 'User';
+          _userEmail = user.email ?? 'user@example.com';
+          _userPhotoUrl = user.photoURL;
+        });
+        print('✅ User data loaded: $_userName ($_userEmail)');
+        return;
+      }
+
+      // Fallback to SharedPreferences
+      print('⚠️ No Firebase user, loading from SharedPreferences');
+      final prefs = await SharedPreferences.getInstance();
+      final name = prefs.getString('user_name') ?? 'User';
+      final email = prefs.getString('user_email') ?? 'user@example.com';
+      
+      setState(() {
+        _userName = name;
+        _userEmail = email;
+      });
+    } catch (e) {
+      print('❌ Error loading user data: $e');
+      // Keep default values
+    }
   }
 
   Future<void> _logOut() async {
