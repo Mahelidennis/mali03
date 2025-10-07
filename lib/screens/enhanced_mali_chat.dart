@@ -21,6 +21,7 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
   bool _isLoading = false;
   Map<String, dynamic> _financialData = {};
   String _selectedVibe = 'Sassy & Bold';
+  bool _preferOffline = false; // Default to API mode
   late AnimationController _pulseController;
   late AnimationController _fadeController;
   late Animation<double> _pulseAnimation;
@@ -32,11 +33,20 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
     _initializeAnimations();
     _loadFinancialData();
     _loadUserVibe();
+    _loadPreferences();
     _loadConversationHistory();
     // Only add welcome message if no conversation history exists
     if (_messages.isEmpty) {
     _addWelcomeMessage();
     }
+  }
+  
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _preferOffline = prefs.getBool('prefer_offline_mode') ?? false; // Default to API
+    });
+    print('💡 Loaded preferences: preferOffline = $_preferOffline');
   }
 
   void _initializeAnimations() {
@@ -224,13 +234,15 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
       };
 
       // Get AI response from hybrid service (tries API first, falls back to offline)
+      print('🤖 Getting Mali response (preferOffline: $_preferOffline)');
       final aiResponse = await HybridMaliService.getMaliResponse(
         userMessage: userMessage,
         financialContext: financialContext,
         selectedVibe: _selectedVibe,
         conversationHistory: conversationHistory,
-        preferOffline: false, // Set to true to always use offline mode
+        preferOffline: _preferOffline,
       );
+      print('✅ Got response: ${aiResponse.substring(0, aiResponse.length > 50 ? 50 : aiResponse.length)}...');
 
       setState(() {
         _messages.add(ChatMessage(
@@ -350,48 +362,48 @@ class _EnhancedMaliChatState extends State<EnhancedMaliChat>
                 // Mali Status
                 Expanded(
                   child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Column(
+                  opacity: _fadeAnimation,
+                  child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
+                    children: [
+                      const Text(
                           'Your AI Financial Assistant',
-                          style: TextStyle(
+                        style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                          ),
+                          color: Colors.white,
                         ),
-                        const SizedBox(height: 4),
-                        Container(
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
                                 width: 6,
                                 height: 6,
-                                decoration: const BoxDecoration(
-                                  color: Colors.green,
-                                  shape: BoxShape.circle,
-                                ),
+                              decoration: const BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
                               ),
+                            ),
                               const SizedBox(width: 6),
-                              const Text(
-                                'Online',
-                                style: TextStyle(
-                                  color: Colors.white,
+                            const Text(
+                              'Online',
+                              style: TextStyle(
+                                color: Colors.white,
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                                fontWeight: FontWeight.w500,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
+                      ),
                       ],
                     ),
                   ),

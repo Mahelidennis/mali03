@@ -24,7 +24,7 @@ class _ApiSettingsScreenState extends State<ApiSettingsScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _preferOffline = prefs.getBool('prefer_offline_mode') ?? true;
+      _preferOffline = prefs.getBool('prefer_offline_mode') ?? false; // Default to API mode
     });
   }
 
