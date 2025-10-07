@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "166767829631",
+    "project_id": "mali-prod",
+    "storage_bucket": "mali-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:166767829631:android:ea47ff1ac00f1bd07cd54a",
+        "android_client_info": {
+          "package_name": "com.example.mali03"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGII9oRNGjJVAUeDustKOoWEbdezlkQX8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

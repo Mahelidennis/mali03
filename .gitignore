@@ -1,30 +1,5 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.buildlog/
-.history
-.svn/
-migrate_working_dir/
-
-# IntelliJ IDEA
-.idea/
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-# Visual Studio Code
-.vscode/
-
 # Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+**/build/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
@@ -32,9 +7,9 @@ out/
 .pub-cache/
 .pub/
 /build/
-pubspec.lock
 
 # Web related
+lib/generated_plugin_registrant.dart
 
 # Symbolication related
 app.*.symbols
@@ -47,26 +22,134 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Firebase
-google-services.json
-GoogleService-Info.plist
+# iOS related
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/*sync/
+**/ios/**/.sconsign.dblite
+**/ios/**/.tags*
+**/ios/**/.vagrant/
+**/ios/**/DerivedData/
+**/ios/**/Icon?
+**/ios/**/Pods/
+**/ios/**/.symlinks/
+**/ios/**/profile
+**/ios/**/xcuserdata
+**/ios/.generated/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
 
-# Environment files
-.env
-.env.local
-.env.production
+# macOS related
+**/macos/Flutter/GeneratedPluginRegistrant.swift
 
-# Backup files
-*.backup
-*.bak
+# Coverage
+coverage/
 
-# OS generated files
-Thumbs.db
+# Exceptions to above rules.
+!**/ios/**/default.mode1v3
+!**/ios/**/default.mode2v3
+!**/ios/**/default.pbxuser
+!**/ios/**/default.perspectivev3
+
+# Web related
+/web/
+
+# Firebase related
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# IDE related
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS related
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 ehthumbs.db
-Desktop.ini
+Thumbs.db
 
 # Temporary files
 *.tmp
 *.temp
 
+# Log files
+*.log
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Node modules (if any)
+node_modules/
+
+# Vercel
 .vercel
+
+# Build artifacts
+*.apk
+*.ipa
+*.app
+*.aab
+
+# Generated files
+lib/generated_plugin_registrant.dart
+
+# Local configuration files
+local.properties
+key.properties
+
+# Crash logs
+hs_err_pid*.log
+replay_pid*.log
+
+# Flutter logs
+flutter_*.log
+
+# Documentation build
+docs/
+
+# Public directory (deployment files)
+public/
+
+# Static files
+static/
+
+# Canvaskit
+canvaskit/
+
+# Version files
+version.json
+main.dart.js
+flutter.js
+flutter_bootstrap.js
+flutter_service_worker.js
+
+# Icons
+icons/
+favicon.png
+
+# Manifest
+manifest.json
+index.html
