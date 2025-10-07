@@ -11,6 +11,9 @@ import 'mali_chat_enhanced.dart';
 import 'widgets/guest_mode_banner.dart';
 import 'services/auth_service.dart';
 import 'services/firestore_database_service.dart';
+import 'services/sms_service_factory.dart';
+import 'models/transaction_model.dart';
+import 'widgets/transaction_charges_summary.dart';
 import 'dart:convert';
 
 class DashboardScreen extends StatefulWidget {
@@ -25,12 +28,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
   String _userName = 'financial warrior';
   String? _userPhotoUrl;
+  
+  // SMS Insights data
+  Map<String, dynamic> _smsStats = {};
+  List<Transaction> _recentSmsTransactions = [];
+  bool _smsDataLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
     _loadFinancialData();
+    _loadSmsInsights();
   }
 
   /// Load user profile from Firebase Auth
@@ -206,6 +215,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  /// Load SMS insights data
+  Future<void> _loadSmsInsights() async {
+    try {
+      print('📱 Loading SMS insights...');
+      
+      // Get transaction statistics
+      final stats = await SmsServiceFactory.getTransactionStats();
+      
+      // Get recent transactions
+      final transactions = await SmsServiceFactory.getStoredTransactions();
+      
+      // Sort by date (most recent first) and take first 5
+      transactions.sort((a, b) => b.date.compareTo(a.date));
+      final recentTransactions = transactions.take(5).toList();
+
+      setState(() {
+        _smsStats = stats;
+        _recentSmsTransactions = recentTransactions;
+        _smsDataLoaded = true;
+      });
+      
+      print('✅ SMS insights loaded: ${_smsStats['totalTransactions'] ?? 0} transactions');
+    } catch (e) {
+      print('❌ Error loading SMS insights: $e');
+      setState(() {
+        _smsDataLoaded = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -242,12 +281,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         // Balance card
                         _buildBalanceCard(),
                         const SizedBox(height: 24),
-                        // Recent transactions
-                        _buildRecentTransactions(),
+                        // SMS Insights - M-PESA Tracking
+                        _buildSmsInsightsSection(),
                         const SizedBox(height: 24),
-                                // Budget section
-                                _buildBudgetSection(),
-                                const SizedBox(height: 24),
                                 
                                 // Financial Insights section
                                 _buildFinancialInsightsSection(),
@@ -1579,5 +1615,345 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
+  }
+
+  /// Build SMS Insights section with M-PESA tracking
+  Widget _buildSmsInsightsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header
+        Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEE2B8D).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Icon(
+                Icons.sms,
+                color: Color(0xFFEE2B8D),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'M-PESA Tracking',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF181114),
+                ),
+              ),
+            ),
+            if (_smsDataLoaded)
+              Text(
+                '${_smsStats['totalTransactions'] ?? 0} transactions',
+                style: const TextStyle(
+                  color: Color(0xFF575354),
+                  fontSize: 12,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        
+        // SMS Stats Cards
+        if (_smsDataLoaded && _smsStats.isNotEmpty) ...[
+          Row(
+            children: [
+              Expanded(
+                child: _buildSmsStatCard(
+                  'Income',
+                  'Ksh ${(_smsStats['totalIncome'] ?? 0.0).toStringAsFixed(0)}',
+                  Colors.green,
+                  Icons.trending_up,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildSmsStatCard(
+                  'Expenses',
+                  'Ksh ${(_smsStats['totalExpenses'] ?? 0.0).toStringAsFixed(0)}',
+                  Colors.red,
+                  Icons.trending_down,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+        ],
+        
+        // Recent M-PESA Transactions
+        _buildRecentSmsTransactions(),
+        
+        // Transaction Charges Summary
+        if (_recentSmsTransactions.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          TransactionChargesSummary(
+            transactions: _recentSmsTransactions,
+            period: 'this period',
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// Build SMS stat card
+  Widget _buildSmsStatCard(String title, String value, Color color, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 16),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Color(0xFF575354),
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build recent SMS transactions
+  Widget _buildRecentSmsTransactions() {
+    if (!_smsDataLoaded) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFEE2B8D)),
+          ),
+        ),
+      );
+    }
+
+    if (_recentSmsTransactions.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.receipt_long,
+              size: 48,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'No M-PESA transactions yet',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF181114),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'M-PESA transactions will appear here once detected',
+              style: TextStyle(
+                color: Color(0xFF575354),
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Recent M-PESA Transactions',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF181114),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ..._recentSmsTransactions.map((transaction) => 
+            _buildSmsTransactionItem(transaction)
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build SMS transaction item
+  Widget _buildSmsTransactionItem(Transaction transaction) {
+    final isIncome = transaction.type == TransactionType.income;
+    final amountColor = isIncome ? Colors.green : Colors.red;
+    final amountPrefix = isIncome ? '+' : '-';
+    final hasCharge = transaction.transactionCharge != null && transaction.transactionCharge! > 0;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: amountColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+                  color: amountColor,
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      transaction.description,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        color: Color(0xFF181114),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      transaction.category,
+                      style: const TextStyle(
+                        color: Color(0xFF575354),
+                        fontSize: 11,
+                      ),
+                    ),
+                    Text(
+                      _formatSmsDate(transaction.date),
+                      style: const TextStyle(
+                        color: Color(0xFF575354),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '$amountPrefix Ksh ${transaction.amount.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      color: amountColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  if (hasCharge) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      'Charge: Ksh ${transaction.transactionCharge!.toStringAsFixed(0)}',
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Format date for SMS transactions
+  String _formatSmsDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+    
+    if (difference.inDays == 0) {
+      return 'Today';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} days ago';
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
   }
 }
