@@ -49,6 +49,13 @@ function Build-Deploy-Mali {
     Deploy-Mali
 }
 
+# Function to run full deploy and backup
+function Deploy-Mali {
+    Set-Location $env:MALI_WORKSPACE
+    Write-Host "🚀 Running full deploy and backup..." -ForegroundColor Yellow
+    & ".\deploy_and_backup.bat"
+}
+
 # Function to run Mali app
 function Run-Mali {
     Set-Location $env:MALI_WORKSPACE
@@ -72,7 +79,7 @@ function Show-MaliCommands {
     Write-Host "  Mali-Flutter         - Run Flutter commands from Mali workspace" -ForegroundColor White
     Write-Host "  Mali-Firebase        - Run Firebase commands from Mali workspace" -ForegroundColor White
     Write-Host "  Build-Mali           - Build the Mali app" -ForegroundColor White
-    Write-Host "  Deploy-Mali          - Deploy to Firebase" -ForegroundColor White
+    Write-Host "  Deploy-Mali          - Deploy to Firebase (with backup)" -ForegroundColor White
     Write-Host "  Build-Deploy-Mali    - Build and deploy in one command" -ForegroundColor White
     Write-Host "  Run-Mali             - Run the app in Chrome" -ForegroundColor White
     Write-Host "  Setup-Mali           - Clean and get dependencies" -ForegroundColor White

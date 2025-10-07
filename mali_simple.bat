@@ -35,6 +35,9 @@ if "%1"=="build" (
     robocopy build\web public /E /MIR
     firebase deploy --only hosting
     echo ✅ Build and deployment complete!
+) else if "%1"=="deploy" (
+    echo Running full deploy and backup...
+    call deploy_and_backup.bat
 ) else (
     echo Mali Command Center
     echo.
@@ -42,7 +45,7 @@ if "%1"=="build" (
     echo.
     echo Commands:
     echo   build        - Build the Mali app
-    echo   deploy       - Deploy to Firebase
+    echo   deploy       - Deploy to Firebase (with backup)
     echo   run          - Run the app in Chrome
     echo   setup        - Clean and get dependencies
     echo   build-deploy - Build and deploy in one command
