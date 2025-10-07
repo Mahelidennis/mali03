@@ -6,10 +6,8 @@ import 'screens/goals_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/auth/profile_management_screen.dart';
-import 'screens/migration_screen.dart';
 import 'screens/onboarding/onboarding_flow.dart';
 import 'services/auth_service.dart';
-import 'services/migration_service.dart';
 import 'models/auth_models.dart';
 import 'widgets/mali_logo.dart';
 import 'notification_center_screen.dart';
@@ -54,30 +52,14 @@ class _MainAppState extends State<MainApp> {
           _isLoading = false;
         });
         
-        // Check for migration if user is authenticated
+        // Check for SMS permission if user is authenticated
         if (state.isAuthenticated) {
-          _checkMigration();
           _checkSmsPermission();
         }
       }
     });
   }
 
-  Future<void> _checkMigration() async {
-    try {
-      final needsMigration = await MigrationService.isMigrationNeeded();
-      if (needsMigration && mounted) {
-        // Show migration screen
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const MigrationScreen(),
-          ),
-        );
-      }
-    } catch (e) {
-      print('Error checking migration: $e');
-    }
-  }
 
   Future<void> _checkSmsPermission() async {
     try {
@@ -144,8 +126,8 @@ class _MainAppState extends State<MainApp> {
     // Wrap the main app with onboarding flow
     return OnboardingWrapper(
       child: Scaffold(
-        appBar: _buildAppBar(),
-        body: _screens[_currentIndex],
+      appBar: _buildAppBar(),
+      body: _screens[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -205,7 +187,7 @@ class _MainAppState extends State<MainApp> {
                     ),
                   ],
         ),
-      ),
+        ),
       ),
     );
   }
@@ -224,7 +206,7 @@ class _MainAppState extends State<MainApp> {
                  width: 250,
                  height: 150,
                  textSize: 32,
-               ),
+          ),
           const SizedBox(width: 12),
           if (isAnonymous) ...[
             const SizedBox(width: 8),
