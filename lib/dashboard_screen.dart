@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'expense_tracker.dart';
 import 'income_management_screen.dart';
 import 'settings_screen.dart';
@@ -8,6 +9,8 @@ import 'financial_reports_screen.dart';
 import 'goal_management_screen.dart';
 import 'mali_chat_enhanced.dart';
 import 'widgets/guest_mode_banner.dart';
+import 'services/auth_service.dart';
+import 'services/firestore_database_service.dart';
 import 'dart:convert';
 
 class DashboardScreen extends StatefulWidget {
@@ -20,17 +23,50 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic> _financialData = {};
   bool _isLoading = true;
+  String _userName = 'financial warrior';
+  String? _userPhotoUrl;
 
   @override
   void initState() {
     super.initState();
+    _loadUserProfile();
     _loadFinancialData();
+  }
+
+  /// Load user profile from Firebase Auth
+  Future<void> _loadUserProfile() async {
+    try {
+      final user = AuthService.currentUser;
+      if (user != null) {
+        print('👤 Loading user profile for: ${user.email}');
+        setState(() {
+          // Get first name from display name, or use email username
+          if (user.displayName != null && user.displayName!.isNotEmpty) {
+            _userName = user.displayName!.split(' ').first;
+          } else if (user.email != null) {
+            _userName = user.email!.split('@').first;
+          }
+          _userPhotoUrl = user.photoURL;
+        });
+        print('✅ User profile loaded: $_userName');
+      } else {
+        print('ℹ️ No user logged in, using default profile');
+      }
+    } catch (e) {
+      print('❌ Error loading user profile: $e');
+    }
   }
 
   Future<void> _loadFinancialData() async {
     final currentMonth = DateTime.now();
 
-    // Get income data
+    // Check if user is authenticated and try to sync from Firestore
+    if (AuthService.isSignedIn) {
+      print('🔄 User authenticated, syncing data from Firestore...');
+      await _syncFirestoreData();
+    }
+
+    // Get income data from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final incomesString = prefs.getStringList('user_incomes') ?? [];
     double totalIncome = 0;
@@ -124,6 +160,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  /// Sync Firestore data to SharedPreferences
+  Future<void> _syncFirestoreData() async {
+    try {
+      if (!FirestoreDatabaseService.isAuthenticated) {
+        print('⚠️ User not authenticated, skipping Firestore sync');
+        return;
+      }
+
+      print('📥 Syncing data from Firestore...');
+      
+      // Get data from Firestore
+      final expenses = await FirestoreDatabaseService.getExpenses();
+      final incomes = await FirestoreDatabaseService.getIncome();
+      final budgets = await FirestoreDatabaseService.getBudgets();
+      final goals = await FirestoreDatabaseService.getGoals();
+
+      // Convert to JSON strings for SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Save expenses
+      final expensesJson = expenses.map((e) => jsonEncode(e.toJson())).toList();
+      await prefs.setStringList('user_expenses', expensesJson);
+      print('✅ Synced ${expenses.length} expenses');
+
+      // Save incomes
+      final incomesJson = incomes.map((i) => jsonEncode(i.toJson())).toList();
+      await prefs.setStringList('user_incomes', incomesJson);
+      print('✅ Synced ${incomes.length} incomes');
+
+      // Save budgets
+      final budgetsJson = budgets.map((b) => jsonEncode(b.toJson())).toList();
+      await prefs.setStringList('user_budgets', budgetsJson);
+      print('✅ Synced ${budgets.length} budgets');
+
+      // Save goals
+      final goalsJson = goals.map((g) => jsonEncode(g.toJson())).toList();
+      await prefs.setStringList('user_goals', goalsJson);
+      print('✅ Synced ${goals.length} goals');
+
+      print('🎉 Firestore sync complete!');
+    } catch (e) {
+      print('❌ Error syncing Firestore data: $e');
+      // Continue with local data if sync fails
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,10 +219,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: const EdgeInsets.only(top: 50, left: 24, right: 24, bottom: 16),
             child: Column(
               children: [
-                // Welcome message
-                const Text(
-                  'Hey, financial warrior! Ready to conquer your goals? 💪',
-                  style: TextStyle(
+                // Welcome message with user name
+                Text(
+                  'Hey, $_userName! Ready to conquer your goals? 💪',
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.grey,
                   ),
