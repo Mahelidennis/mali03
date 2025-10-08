@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../services/auth_service.dart';
 import '../../models/auth_models.dart';
 import '../../widgets/mali_logo.dart';
@@ -110,6 +112,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  Future<void> _openTermsAndConditions() async {
+    final url = Uri.parse('https://mali-prod.web.app/docs/terms-of-service.html');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalBrowser);
+      } else {
+        _showInfoSnackBar('Terms and Conditions will be available soon');
+      }
+    } catch (e) {
+      _showInfoSnackBar('Unable to open Terms and Conditions at this time');
+    }
+  }
+
+  Future<void> _openPrivacyPolicy() async {
+    final url = Uri.parse('https://mali-prod.web.app/docs/privacy-policy.html');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalBrowser);
+      } else {
+        _showInfoSnackBar('Privacy Policy will be available soon');
+      }
+    } catch (e) {
+      _showInfoSnackBar('Unable to open Privacy Policy at this time');
+    }
+  }
+
+  void _showInfoSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: const Color(0xFFEE2B8D),
       ),
     );
   }
@@ -477,6 +514,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     color: Color(0xFFEE2B8D),
                     decoration: TextDecoration.underline,
                   ),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = _openTermsAndConditions,
                 ),
                 const TextSpan(text: ' *'),
               ],
@@ -506,6 +545,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     color: Color(0xFFEE2B8D),
                     decoration: TextDecoration.underline,
                   ),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = _openPrivacyPolicy,
                 ),
                 const TextSpan(text: ' *'),
               ],
